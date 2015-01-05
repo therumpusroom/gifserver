@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/leafo/gifserver/gifserver"
+	"github.com/therumpusroom/gifserver/gifserver"
 )
 
 var (
