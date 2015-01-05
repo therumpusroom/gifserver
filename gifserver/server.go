@@ -209,7 +209,7 @@ func transcodeHandler(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	vidFname, err := conv(dir)
+	vidFname, err := conv(dir, serverConfig.FrameRate)
 
 	if err != nil {
 		return err

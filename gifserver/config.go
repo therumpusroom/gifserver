@@ -16,6 +16,7 @@ type config struct {
 	MaxWidth       int
 	MaxHeight      int
 	MaxConcurrency int
+	FrameRate      int
 }
 
 var defaultConfig = config{
@@ -26,6 +27,7 @@ var defaultConfig = config{
 	MaxWidth:       512,
 	MaxHeight:      512,
 	MaxConcurrency: 0,
+	FrameRate:      0,
 }
 
 func LoadConfig(fname string) *config {

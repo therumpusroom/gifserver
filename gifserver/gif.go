@@ -11,7 +11,7 @@ import (
 	"path"
 )
 
-type converter func(string) (string, error)
+type converter func(string, int) (string, error)
 
 func checkDimensions(reader io.Reader, maxWidth, maxHeight int) error {
 	data, err := gif.DecodeConfig(reader)
@@ -48,16 +48,15 @@ func extractGif(dir string) error {
 
 // ffmpeg -i "$pattern" -pix_fmt yuv420p -vf 'scale=trunc(in_w/2)*2:trunc(in_h/2)*2' "${out_base}.mp4"
 
-func convertToMP4(dir string) (string, error) {
+func convertToMP4(dir string, frameRate int) (string, error) {
 	log.Print("Encoding ", dir, " to mp4")
 
 	outFname := "out.mp4"
-	pattern := "frame_%05d.png"
-	cmd := exec.Command("ffmpeg",
-		"-i", pattern,
-		"-pix_fmt", "yuv420p",
-		"-vf", "scale=trunc(in_w/2)*2:trunc(in_h/2)*2'",
-		outFname)
+
+	options := getOptions(frameRate)
+	options = append(options, "-vf", "scale=trunc(in_w/2)*2:trunc(in_h/2)*2'", outFname)
+
+	cmd := exec.Command("ffmpeg", options...)
 
 	cmd.Dir = dir
 	err := cmd.Run()
@@ -71,16 +70,15 @@ func convertToMP4(dir string) (string, error) {
 
 // ffmpeg -i "$pattern" -q 5 -pix_fmt yuv420p "${out_base}.ogv"
 
-func convertToOGV(dir string) (string, error) {
+func convertToOGV(dir string, frameRate int) (string, error) {
 	log.Print("Encoding ", dir, " to ogv")
 
 	outFname := "out.ogv"
-	pattern := "frame_%05d.png"
-	cmd := exec.Command("ffmpeg",
-		"-i", pattern,
-		"-q", "5",
-		"-pix_fmt", "yuv420p",
-		outFname)
+
+	options := getOptions(frameRate)
+	options = append(options, "-q", "5", outFname)
+
+	cmd := exec.Command("ffmpeg", options...)
 
 	cmd.Dir = dir
 	err := cmd.Run()
@@ -92,8 +90,21 @@ func convertToOGV(dir string) (string, error) {
 	return path.Join(dir, outFname), nil
 }
 
-func convertToFrame(dir string) (string, error) {
+func convertToFrame(dir string, frameRate int) (string, error) {
 	return path.Join(dir, "frame_00001.png"), nil
+}
+
+func getOptions(frameRate int) []string {
+	options := []string{
+		"-i", "frame_%05d.png",
+		"-pix_fmt", "yuv420p",
+	}
+
+	if frameRate != 0 {
+		options = append(options, "-r", fmt.Sprintf("%v", frameRate))
+	}
+
+	return options
 }
 
 func cleanDir(dir string) error {
