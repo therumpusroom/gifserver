@@ -52,3 +52,14 @@ func (cache *FileCache) PutWriter(fname string) (io.WriteCloser, error) {
 func (cache *FileCache) Get(fname string) (*os.File, error) {
 	return os.Open(path.Join(cache.Dir, fname))
 }
+
+func (cache *FileCache) Del(fname string) {
+	filePath := path.Join(cache.Dir, fname)
+
+	err := os.Remove(filePath)
+	if err != nil {
+		log.Print("Failed to delete ", filePath)
+	} else {
+		log.Print("Deleted ", filePath)
+	}
+}

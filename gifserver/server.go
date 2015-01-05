@@ -251,6 +251,11 @@ func transcodeHandler(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	http.ServeContent(w, r, key, fileInfo.ModTime(), cacheFile)
+
+	if serverConfig.CacheDir == "" {
+		cache.Del(key)
+	}
+
 	return err
 }
 
